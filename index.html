@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarklet Sandbox Test Page</title>
+    <script src="panel.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9f9f9;
+            color: #333;
+        }
+        header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .test-zone {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .sample-target {
+            padding: 10px;
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        footer {
+            margin-top: 4px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Bookmarklet Testing Sandbox</h1>
+        <p>Use this clean environment to safely test your custom JavaScript bookmarklets.</p>
+    </header>
+
+    <main>
+        <section class="test-zone" id="dom-target">
+            <h2>1. DOM Modification Target</h2>
+            <p>This paragraph contains standard text. A good test is to write a bookmarklet that changes this text or highlights it.</p>
+            <div class="sample-target" id="test-div">
+                This is a specific target div with <code>id="test-div"</code> and <code>class="sample-target"</code>.
+            </div>
+        </section>
+
+        <section class="test-zone">
+            <h2>2. Interactive Elements</h2>
+            <p>Test if your bookmarklet can interact with forms, inputs, or trigger events.</p>
+            <form onsubmit="event.preventDefault(); alert('Form submitted!');">
+                <label for="test-input">Sample Input:</label>
+                <input type="text" id="test-input" placeholder="Type something...">
+                <button type="submit">Submit Form</button>
+            </form>
+        </section>
+
+        <section class="test-zone">
+            <h2>3. Images & Media</h2>
+            <p>Great for testing image scrapers or alt-text checkers.</p>
+            <img src="https://picsum.photos" alt="Placeholder image for testing" style="border-radius: 4px;">
+        </section>
+    </main>
+
+    <footer>
+        <p>Console helper: Press <code>F12</code> or <code>Ctrl+Shift+I</code> (Cmd+Option+I on Mac) to watch for errors while running your bookmarklet.</p>
+    </footer>
+
+</body>
+</html>
