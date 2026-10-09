@@ -57,6 +57,12 @@ javascript: (function () {
                 document.designMode = this.checked ? 'on' : 'off';
             }
         },
+        removeElement: {
+            controlType: "simple", element: "button", textContent: 'Remove Element',
+            onclick: function () {
+                selectElement(function (e) {e.target.remove();});
+            }
+        },
         rainbowfy: function () {
             selectElement(function (e) {
                 const el = e.target;
@@ -75,6 +81,7 @@ javascript: (function () {
     for (const [key, value] of Object.entries(controls)) {
         if (typeof value === "function") {
             const el = document.createElement("button");
+            el.style.cssText = "border: 1px solid #222; margin: 2px;";
             el.textContent = key; el.onclick = value;
             c.appendChild(el);
             continue;
@@ -83,6 +90,7 @@ javascript: (function () {
             if (value.controlType && value.controlType == "simple") {
                 const { controlType, element, ...properties } = value;
                 const el = document.createElement(element);
+                el.style.cssText = "border: 1px solid #222; margin: 2px;";
                 for (const [eKey, eValue] of Object.entries(properties)) {el[eKey] = eValue;}
                 c.appendChild(el);
             } else if (value.controlType && value.controlType == "labeled") {
