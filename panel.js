@@ -1,10 +1,27 @@
 javascript: (function () {
+    function formatError(error) {
+        if (error instanceof Error) {
+            return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ''}`;
+        }
+        return String(error);
+    }
+
     window.addEventListener('error', function (event) {
-        alert(event.error + " " + event.lineno);
+        const details = [
+            event.message || 'Unknown error',
+            event.filename && `File: ${event.filename}`,
+            event.lineno && `Line: ${event.lineno}`,
+            event.colno && `Column: ${event.colno}`,
+            event.error && `Stack:\n${formatError(event.error)}`
+        ].filter(Boolean).join('\n');
+        alert(`JavaScript error:\n${details}`);
+    });
+    window.addEventListener('unhandledrejection', function (event) {
+        alert(`Unhandled promise rejection:\n${formatError(event.reason)}`);
     });
     /* Controller Creator. */
     const c = document.createElement('div');
-    c.style = `position: fixed; z-index: 9999;
+    c.style.cssText = `position: fixed; z-index: 9999;
         left: 10px; top: 10px;
         background-color: #ffffffc0;
         border: 1px solid #ccc;
@@ -17,7 +34,7 @@ javascript: (function () {
         document.head.appendChild(style);
         function targetElement(e) {
             e.preventDefault(); e.stopPropagation();
-            func(e) /* Do the function here */
+            func(e); /* Do the function here */
             document.removeEventListener('click', targetElement, true);
             document.removeEventListener('mouseover', addHover);
             document.removeEventListener('mouseout', removeHover);
@@ -32,17 +49,25 @@ javascript: (function () {
     }
 
     const controls = {
+        editPage: {
+            controlType: "labeled", label: "Edit Page", element: "input",
+            type: 'checkbox', checked: false, id: 'editPage',
+            onchange: function () {
+                document.body.contentEditable = this.checked;
+                document.designMode = this.checked ? 'on' : 'off';
+            }
+        },
         rainbowfy: function () {
             selectElement(function (e) {
                 const el = e.target;
                 setInterval(function () {
-                    el.style.color = `hsl(${Date.now() % 360},100%,50%)`;
-                    el.style.backgroundColor = `hsl(${(Date.now() / 9 % 360)},100%,50%)`;
+                    el.style.color = `hsl(${(Date.now())/9+180 % 360},100%,50%)`;
+                    el.style.backgroundColor = `hsl(${(Date.now()/9% 360)},100%,50%)`;
                 }, 1000 / 30);
             });
         },
         exit: {
-            type: "simple", element: "button", textContent: 'x',
+            controlType: "simple", element: "button", textContent: 'x',
             onclick: function () { c.remove(); },
         }
     };
@@ -55,11 +80,18 @@ javascript: (function () {
             continue;
         }
         if (typeof value === "object") {
-            if (value.type && value.type == "simple") {
-                const { type, element, ...properties } = value;
+            if (value.controlType && value.controlType == "simple") {
+                const { controlType, element, ...properties } = value;
                 const el = document.createElement(element);
                 for (const [eKey, eValue] of Object.entries(properties)) {el[eKey] = eValue;}
                 c.appendChild(el);
+            } else if (value.controlType && value.controlType == "labeled") {
+                const { controlType, label, element, ...properties } = value;
+                const el = document.createElement(element);
+                for (const [eKey, eValue] of Object.entries(properties)) {el[eKey] = eValue;}
+                const labelEl = document.createElement("label");
+                labelEl.textContent = label; labelEl.appendChild(el);
+                c.appendChild(labelEl);
             }
         }
     }
