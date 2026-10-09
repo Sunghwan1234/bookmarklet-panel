@@ -16,7 +16,8 @@ javascript: (function () {
     });
     /* Controller Creator. */
     const c = document.createElement('div');
-    c.style.cssText = `position: fixed; z-index: 9999;
+    c.style.cssText = `display: flex; flex-direction: column; gap: 5px;
+        position: fixed; z-index: 9999;
         left: 10px; top: 10px;
         background-color: #ffffffc0;
         border: 1px solid #ccc;
@@ -59,6 +60,14 @@ javascript: (function () {
                 document.designMode = this.checked ? 'on' : 'off';
             }
         },
+        removeAds: {
+            controlType: "simple", element: "button", textContent: 'Remove Ads',
+            onclick: function () {
+                const adElements = findElementsByIdSubstring('google_ads_iframe');
+                adElements.forEach(el => el.parentElement.remove());
+                alert(`Removed ${adElements.length} ad element parents.`);
+            }
+        },
         removeElement: {
             controlType: "simple", element: "button", textContent: 'Remove Element',
             onclick: function () {
@@ -95,7 +104,7 @@ javascript: (function () {
     for (const [key, value] of Object.entries(controls)) {
         if (typeof value === "function") {
             const el = document.createElement("button");
-            el.style.cssText = "border: 1px solid #222; margin: 2px;";
+            el.style.cssText = "border: 1px solid #222;";
             el.textContent = key; el.onclick = value;
             c.appendChild(el);
             continue;
@@ -104,7 +113,7 @@ javascript: (function () {
             if (value.controlType && value.controlType == "simple") {
                 const { controlType, element, ...properties } = value;
                 const el = document.createElement(element);
-                el.style.cssText = "border: 1px solid #222; margin: 2px;";
+                el.style.cssText = "border: 1px solid #222;";
                 for (const [eKey, eValue] of Object.entries(properties)) {el[eKey] = eValue;}
                 c.appendChild(el);
             } else if (value.controlType && value.controlType == "labeled") {
