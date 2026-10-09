@@ -1,10 +1,5 @@
 javascript: (function () {
-    function formatError(error) {
-        if (error instanceof Error) {
-            return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ''}`;
-        }
-        return String(error);
-    }
+    function formatError(error) {if (error instanceof Error) {return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ''}`;} return String(error);}
 
     window.addEventListener('error', function (event) {
         const details = [
@@ -63,6 +58,18 @@ javascript: (function () {
                 selectElement(function (e) {e.target.remove();});
             }
         },
+        resizeElement: {
+            controlType: "simple", element: "button", textContent: 'Resize Element',
+            onclick: function () {
+                selectElement(function (e) {
+                    const el = e.target;
+                    /* Apply the required CSS properties to the clicked element */
+                    el.style.resize = 'both'; el.style.overflow = 'auto';
+                    if (!el.style.minWidth) el.style.minWidth = '50px';
+                    if (!el.style.minHeight) el.style.minHeight = '50px';
+                });
+            }
+        },
         rainbowfy: function () {
             selectElement(function (e) {
                 const el = e.target;
@@ -74,7 +81,7 @@ javascript: (function () {
         },
         exit: {
             controlType: "simple", element: "button", textContent: 'x',
-            onclick: function () { c.remove(); },
+            onclick: function () {c.remove();},
         }
     };
 

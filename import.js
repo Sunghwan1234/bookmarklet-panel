@@ -1,0 +1,7 @@
+javascript:(
+    function(){
+            
+        /* Add a visual indicator to show what is being hovered */    
+        const style = document.createElement('style');    
+        style.innerHTML = '.bm-hover { outline: 2px dashed #3b82f6 !important; cursor: pointer !important; }';    
+        document.head.appendChild(style);    alert('Click on any element to make it resizable.');    function targetElement(e) {        e.preventDefault();        e.stopPropagation();                const el = e.target;                /* Apply the required CSS properties to the clicked element */        el.style.resize = 'both';        el.style.overflow = 'auto';        if (!el.style.minWidth) el.style.minWidth = '50px';        if (!el.style.minHeight) el.style.minHeight = '50px';                /* Clean up listeners and styles after selection */        document.removeEventListener('click', targetElement, true);        document.removeEventListener('mouseover', addHover);        document.removeEventListener('mouseout', removeHover);        el.classList.remove('bm-hover');                alert('Element is now resizable! Use the bottom-right corner handle.');    }    function addHover(e) { e.target.classList.add('bm-hover'); }    function removeHover(e) { e.target.classList.remove('bm-hover'); }    /* Set up temporary listeners to select the element */    document.addEventListener('click', targetElement, true);    document.addEventListener('mouseover', addHover);    document.addEventListener('mouseout', removeHover);})();
