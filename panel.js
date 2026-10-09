@@ -15,13 +15,19 @@ javascript: (function () {
         alert(`Unhandled promise rejection:\n${formatError(event.reason)}`);
     });
     /* Controller Creator. */
-    const c = document.createElement('div');
+    if (document.getElementById('bm-container')) {return;}
+    const container = document.createElement('div'); container.id = 'bm-container';
+    container.style.cssText = `position: fixed; z-index: 9999;
+        left: 0; top: 0; width: 100%; height: 100%;
+        pointer-events: none;`;
+    const c = document.createElement('div'); c.id = 'bm-panel';
     c.style.cssText = `display: flex; flex-direction: column; gap: 5px;
         position: fixed; z-index: 9999;
         left: 10px; top: 10px;
         background-color: #ffffffc0;
         border: 1px solid #ccc;
-        padding: 5px;`;
+        padding: 5px;
+        pointer-events: auto;`;
     c.insertAdjacentHTML('beforeend', `<h2>Controls</h2>`);
 
     function selectElement(func) {
@@ -44,9 +50,9 @@ javascript: (function () {
         document.addEventListener('mouseout', removeHover);
     }
 
-    function findElementsByIdSubstring(searchString) {
+    function findElementsBySubstring(selector, searchString) {
         const sanitizedString = CSS.escape(searchString);
-        const elements = document.querySelectorAll(`[id*="${sanitizedString}"]`);
+        const elements = document.querySelectorAll(`[${selector}*="${sanitizedString}"]`);
         /* use output like: matches.forEach(el => console.log(el.id, el));*/
         return Array.from(elements);
     }
@@ -63,9 +69,11 @@ javascript: (function () {
         removeAds: {
             controlType: "simple", element: "button", textContent: 'Remove Ads',
             onclick: function () {
-                const adElements = findElementsByIdSubstring('google_ads_iframe');
+                const adElements = findElementsBySubstring('id', 'google_ads_iframe');
                 adElements.forEach(el => el.parentElement.remove());
-                alert(`Removed ${adElements.length} ad element parents.`);
+                const adSrcs = findElementsBySubstring('src', 'googleads.g.doubleclick.net');
+                adSrcs.forEach(el => el.remove());
+                alert(`Removed ${adElements.length+adSrcs.length} ad element parents.`);
             }
         },
         removeElement: {
@@ -97,7 +105,7 @@ javascript: (function () {
         },
         exit: {
             controlType: "simple", element: "button", textContent: 'x',
-            onclick: function () {c.remove();},
+            onclick: function () {container.remove();},
         }
     };
 
@@ -126,7 +134,8 @@ javascript: (function () {
             }
         }
     }
-    if (document.body) {document.body.appendChild(c);} else {
-        document.addEventListener('DOMContentLoaded', function () {document.body.appendChild(c);}, { once: true });
+    container.appendChild(c);
+    if (document.body) {document.body.appendChild(container);} else {
+        document.addEventListener('DOMContentLoaded', function () {document.body.appendChild(container);}, { once: true });
     }
 })();
