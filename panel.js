@@ -43,6 +43,13 @@ javascript: (function () {
         document.addEventListener('mouseout', removeHover);
     }
 
+    function findElementsByIdSubstring(searchString) {
+        const sanitizedString = CSS.escape(searchString);
+        const elements = document.querySelectorAll(`[id*="${sanitizedString}"]`);
+        /* use output like: matches.forEach(el => console.log(el.id, el));*/
+        return Array.from(elements);
+    }
+
     const controls = {
         editPage: {
             controlType: "labeled", label: "Edit Page", element: "input",
