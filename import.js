@@ -1,7 +1,39 @@
-javascript:(
-    function(){
-            
-        /* Add a visual indicator to show what is being hovered */    
-        const style = document.createElement('style');    
-        style.innerHTML = '.bm-hover { outline: 2px dashed #3b82f6 !important; cursor: pointer !important; }';    
-        document.head.appendChild(style);    alert('Click on any element to make it resizable.');    function targetElement(e) {        e.preventDefault();        e.stopPropagation();                const el = e.target;                /* Apply the required CSS properties to the clicked element */        el.style.resize = 'both';        el.style.overflow = 'auto';        if (!el.style.minWidth) el.style.minWidth = '50px';        if (!el.style.minHeight) el.style.minHeight = '50px';                /* Clean up listeners and styles after selection */        document.removeEventListener('click', targetElement, true);        document.removeEventListener('mouseover', addHover);        document.removeEventListener('mouseout', removeHover);        el.classList.remove('bm-hover');                alert('Element is now resizable! Use the bottom-right corner handle.');    }    function addHover(e) { e.target.classList.add('bm-hover'); }    function removeHover(e) { e.target.classList.remove('bm-hover'); }    /* Set up temporary listeners to select the element */    document.addEventListener('click', targetElement, true);    document.addEventListener('mouseover', addHover);    document.addEventListener('mouseout', removeHover);})();
+javascript:(function () {
+    function findElementsBySubstring(element, selector, searchString) {
+        const sanitizedString = CSS.escape(searchString);
+        const elements = document.querySelectorAll(`${element}[${selector}*="${sanitizedString}"]`);
+        /* use output like: matches.forEach(el => console.log(el.id, el));*/
+        return Array.from(elements);
+    }
+
+    const ad_sites = [
+        'g.doubleclick.net',
+        'bing.com/aclick',
+        'goguardian',
+        'googletag'
+    ];
+    const common_ad_elements = [
+        'google_ads_iframe',
+        'ad-container',
+        'ad-header'
+    ];
+
+    let sites_removed = 0;
+    for (const ad of common_ad_elements) {
+        const adElements = findElementsBySubstring('div','id', ad);
+        adElements.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+        const adElements2 = findElementsBySubstring('div','class', ad);
+        adElements2.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+
+        sites_removed += adElements.length + adElements2.length;
+    }
+    for (const site of ad_sites) {
+        const adElements = findElementsBySubstring('a','src', site);
+        adElements.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+        const adElements2 = findElementsBySubstring('a','href', site);
+        adElements2.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+
+        sites_removed += adElements.length + adElements2.length;
+    }
+    alert(`Removed ${sites_removed} ad element parents.`);
+})();

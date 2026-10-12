@@ -1,6 +1,5 @@
 javascript: (function () {
     function formatError(error) {if (error instanceof Error) {return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ''}`;} return String(error);}
-
     window.addEventListener('error', function (event) {
         const details = [
             event.message || 'Unknown error',
@@ -14,6 +13,13 @@ javascript: (function () {
     window.addEventListener('unhandledrejection', function (event) {
         alert(`Unhandled promise rejection:\n${formatError(event.reason)}`);
     });
+
+    const ad_sites = [
+        'g.doubleclick.net',
+        'bing.com/aclick',
+        'goguardian'
+    ];
+
     /* Controller Creator. */
     if (document.getElementById('bm-container')) {return;}
     const container = document.createElement('div'); container.id = 'bm-container';
@@ -71,9 +77,18 @@ javascript: (function () {
             onclick: function () {
                 const adElements = findElementsBySubstring('id', 'google_ads_iframe');
                 adElements.forEach(el => el.parentElement.remove());
-                const adSrcs = findElementsBySubstring('src', 'googleads.g.doubleclick.net');
-                adSrcs.forEach(el => el.remove());
-                alert(`Removed ${adElements.length+adSrcs.length} ad element parents.`);
+                const adElements2 = findElementsBySubstring('id', 'ad-container');
+                adElements2.forEach(el => el.parentElement.remove());
+                let sites_removed = 0;
+                for (const site of ad_sites) {
+                    const adElements = findElementsBySubstring('src', site);
+                    adElements.forEach(el => el.parentElement.remove());
+                    sites_removed += adElements.length;
+                    const adElements2 = findElementsBySubstring('href', site);
+                    adElements2.forEach(el => el.parentElement.remove());
+                    sites_removed += adElements2.length;
+                }
+                alert(`Removed ${adElements.length+adElements2.length+sites_removed} ad element parents.`);
             }
         },
         removeElement: {
