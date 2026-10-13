@@ -15,23 +15,24 @@ javascript:(function () {
     const common_ad_elements = [
         'google_ads_iframe',
         'ad-container',
+        'display-ad-container',
         'ad-header'
     ];
 
     let sites_removed = 0;
     for (const ad of common_ad_elements) {
         const adElements = findElementsBySubstring('div','id', ad);
-        adElements.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+        adElements.forEach(el => {el.style.border = '1px solid red'; el.remove(); el.parentElement.remove();});
         const adElements2 = findElementsBySubstring('div','class', ad);
-        adElements2.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+        adElements2.forEach(el => {el.style.border = '1px solid red'; el.remove(); el.parentElement.remove();});
 
         sites_removed += adElements.length + adElements2.length;
     }
     for (const site of ad_sites) {
-        const adElements = findElementsBySubstring('a','src', site);
-        adElements.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
-        const adElements2 = findElementsBySubstring('a','href', site);
-        adElements2.forEach(el => ()=>{el.remove(); el.parentElement.remove();});
+        const adElements = findElementsBySubstring('','src', site);
+        adElements.forEach(el => {el.style.border = '1px solid red'; el.remove(); el.parentElement.remove();});
+        const adElements2 = findElementsBySubstring('','href', site);
+        adElements2.forEach(el => {el.style.border = '1px solid red'; el.remove(); el.parentElement.remove();});
 
         sites_removed += adElements.length + adElements2.length;
     }

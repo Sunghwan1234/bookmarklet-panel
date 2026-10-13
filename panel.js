@@ -17,11 +17,12 @@ javascript: (function () {
     const ad_sites = [
         'g.doubleclick.net',
         'bing.com/aclick',
-        'goguardian'
+        'goguardian',
+        'googletag'
     ];
 
     /* Controller Creator. */
-    if (document.getElementById('bm-container')) {return;}
+    if (document.getElementById('bm-container')) {document.getElementById('bm-container').remove(); return;}
     const container = document.createElement('div'); container.id = 'bm-container';
     container.style.cssText = `position: fixed; z-index: 9999;
         left: 0; top: 0; width: 100%; height: 100%;
@@ -56,9 +57,9 @@ javascript: (function () {
         document.addEventListener('mouseout', removeHover);
     }
 
-    function findElementsBySubstring(selector, searchString) {
+    function findElementsBySubstring(element, selector, searchString) {
         const sanitizedString = CSS.escape(searchString);
-        const elements = document.querySelectorAll(`[${selector}*="${sanitizedString}"]`);
+        const elements = document.querySelectorAll(`${element}[${selector}*="${sanitizedString}"]`);
         /* use output like: matches.forEach(el => console.log(el.id, el));*/
         return Array.from(elements);
     }
@@ -75,20 +76,26 @@ javascript: (function () {
         removeAds: {
             controlType: "simple", element: "button", textContent: 'Remove Ads',
             onclick: function () {
-                const adElements = findElementsBySubstring('id', 'google_ads_iframe');
-                adElements.forEach(el => el.parentElement.remove());
-                const adElements2 = findElementsBySubstring('id', 'ad-container');
-                adElements2.forEach(el => el.parentElement.remove());
+                const common_ad_elements = [
+                    'google_ads_iframe',
+                    'ad-container','display-ad-container','ad-header'
+                ];
                 let sites_removed = 0;
-                for (const site of ad_sites) {
-                    const adElements = findElementsBySubstring('src', site);
-                    adElements.forEach(el => el.parentElement.remove());
-                    sites_removed += adElements.length;
-                    const adElements2 = findElementsBySubstring('href', site);
-                    adElements2.forEach(el => el.parentElement.remove());
-                    sites_removed += adElements2.length;
+                for (const ad of common_ad_elements) {
+                    const adElements = findElementsBySubstring('div','id', ad);
+                    adElements.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
+                    const adElements2 = findElementsBySubstring('div','class', ad);
+                    adElements2.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
+                    sites_removed += adElements.length + adElements2.length;
                 }
-                alert(`Removed ${adElements.length+adElements2.length+sites_removed} ad element parents.`);
+                for (const site of ad_sites) {
+                    const adElements = findElementsBySubstring('','src', site);
+                    adElements.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
+                    const adElements2 = findElementsBySubstring('','href', site);
+                    adElements2.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
+                    sites_removed += adElements.length + adElements2.length;
+                }
+                alert(`Removed ${sites_removed} ad element parents.`);
             }
         },
         removeElement: {
@@ -113,8 +120,8 @@ javascript: (function () {
             selectElement(function (e) {
                 const el = e.target;
                 setInterval(function () {
-                    el.style.color = `hsl(${(Date.now())/9+180 % 360},100%,50%)`;
-                    el.style.backgroundColor = `hsl(${(Date.now()/9% 360)},100%,50%)`;
+                    el.style.color = `hsl(${(Date.now()/9+180)%360},100%,50%)`;
+                    el.style.backgroundColor = `hsl(${(Date.now()/9)%360},100%,50%)`;
                 }, 1000 / 30);
             });
         },
