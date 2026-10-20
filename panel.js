@@ -20,24 +20,44 @@ javascript: (function () {
         'g.doubleclick.net',
         'bing.com/aclick',
         'goguardian',
-        'googletag'
+        'googletag',
+        'ads.pubmatic.com',
+        'adsbygoogle',
+        'adservice.google.com',
     ];
 
-    /* Controller Creator. */
+    /* Container Creator. */
     if (document.getElementById('bm-container')) {document.getElementById('bm-container').remove(); return;}
     const container = document.createElement('div'); container.id = 'bm-container';
     container.style.cssText = 'position: fixed; z-index: 9999;\n' +
         'left: 0; top: 0; width: 100%; height: 100%;\n' +
         'pointer-events: none;';
+    /** Controller, the main tab. */
+    const BMStyle = `
+        background-color: #ffffffc0;
+        border: 1px solid #ccc;
+        padding: 5px;
+        pointer-events: auto;
+
+        color: #000;
+        font-size: 12px;
+        z-index: 9999;
+
+        max-width: 200px;
+    `;
     const c = document.createElement('div'); c.id = 'bm-panel';
-    c.style.cssText = 'display: flex; flex-direction: column; gap: 5px;\n' +
-        'position: fixed; z-index: 9999;\n' +
-        'left: 10px; top: 10px;\n' +
-        'background-color: #ffffffc0;\n' +
-        'border: 1px solid #ccc;\n' +
-        'padding: 5px;\n' +
-        'pointer-events: auto;';
+    c.style.cssText = BMStyle + 'display: flex; flex-direction: column; gap: 5px;\n' +
+        'position: relative; margin: 10px;';
     c.insertAdjacentHTML('beforeend', '<h2>Controls</h2>');
+    const log_el = document.createElement('div'); log_el.id = 'bm-log';
+    log_el.style.cssText = BMStyle+'display: none; position: relative; max-height: 200px; overflow-y: auto;';
+
+    function log(message) {
+        const entry = document.createElement('p');
+        entry.textContent = message;
+        log_el.appendChild(entry);
+        log_el.scrollTop = log_el.scrollHeight;
+    }
 
     function selectElement(func) {
         const style = document.createElement('style');
@@ -76,6 +96,20 @@ javascript: (function () {
                 document.designMode = this.checked ? 'on' : 'off';
             }
         },
+        showLog: {
+            controlType: "labeled", label: "Show Log", element: "input",
+            type: 'checkbox', checked: false, id: 'showLog',
+            onchange: function () {
+                log_el.style.display = this.checked ? 'block' : 'none';
+            }
+        },
+        stopAllFetch: {
+            controlType: "simple", element: "button", textContent: 'Stop All Fetch',
+            onclick: function () {
+                window.fetch = function () {return new Promise(() => {});};
+                log('All fetch requests have been stopped.');
+            }
+        },
         removeAds: {
             controlType: "simple", element: "button", textContent: 'Remove Ads',
             onclick: function () {
@@ -86,19 +120,37 @@ javascript: (function () {
                 var sites_removed = 0;
                 for (const ad of common_ad_elements) {
                     const adElements = findElementsBySubstring('div','id', ad);
-                    adElements.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
                     const adElements2 = findElementsBySubstring('div','class', ad);
-                    adElements2.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
-                    sites_removed += adElements.length + adElements2.length;
+                    const allAdElements = adElements.concat(adElements2);
+                    allAdElements.forEach(el => {
+                        try {
+                            if (el.parentElement.tagName == 'HTML' || el.parentElement.tagName == 'BODY') {
+                                log('Removed ad element: ' + el.outerHTML);
+                                el.remove();
+                            } else {
+                                log('Removed ad parent: ' + el.parentElement.outerHTML);
+                                el.parentElement.remove();
+                            }
+                        } catch (e) {}});
+                    sites_removed += allAdElements.length;
                 }
                 for (const site of ad_sites) {
                     const adElements = findElementsBySubstring('','src', site);
-                    adElements.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
                     const adElements2 = findElementsBySubstring('','href', site);
-                    adElements2.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
-                    sites_removed += adElements.length + adElements2.length;
+                    const allAdElements = adElements.concat(adElements2);
+                    allAdElements.forEach(el => {try {
+                        const filteredTags = ['HTML', 'BODY', 'HEAD', 'TITLE', 'META', 'LINK', 'SCRIPT', 'STYLE'];
+                        if (filteredTags.includes(el.parentElement.tagName)) {
+                            log('Removed ad element: ' + el.outerHTML);
+                            el.remove();
+                        } else {
+                            log('Removed ad parent: ' + el.parentElement.outerHTML);
+                            el.parentElement.remove();
+                        }
+                    } catch (e) {}});
+                    sites_removed += allAdElements.length;
                 }
-                alert('Removed ' + sites_removed + ' ad element parents.');
+                log('Removed ' + sites_removed + ' ads.');
             }
         },
         removeElement: {
@@ -160,6 +212,7 @@ javascript: (function () {
         }
     }
     container.appendChild(c);
+    container.appendChild(log_el);
     if (document.body) {document.body.appendChild(container);} else {
         document.addEventListener('DOMContentLoaded', function () {document.body.appendChild(container);}, {once: true});
     }
