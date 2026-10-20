@@ -1,7 +1,8 @@
 javascript:(function () {
     function findElementsBySubstring(element, selector, searchString) {
         const sanitizedString = CSS.escape(searchString);
-        const elements = document.querySelectorAll(`${element}[${selector}*="${sanitizedString}"]`);
+        const selectorString = element + '[' + selector + '*="' + sanitizedString + '"]';
+        const elements = document.querySelectorAll(selectorString);
         /* use output like: matches.forEach(el => console.log(el.id, el));*/
         return Array.from(elements);
     }
@@ -36,5 +37,5 @@ javascript:(function () {
 
         sites_removed += adElements.length + adElements2.length;
     }
-    alert(`Removed ${sites_removed} ad element parents.`);
+    alert('Removed ' + sites_removed + ' ad element parents.');
 })();

@@ -1,19 +1,21 @@
 javascript: (function () {
-    function formatError(error) {if (error instanceof Error) {return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ''}`;} return String(error);}
+    function formatError(error) {
+        if (error instanceof Error) {
+            return error.name + ': ' + error.message + (error.stack ? '\n' + error.stack : '');
+        }
+        return String(error);
+    }
     window.addEventListener('error', function (event) {
         const details = [
             event.message || 'Unknown error',
-            event.filename && `File: ${event.filename}`,
-            event.lineno && `Line: ${event.lineno}`,
-            event.colno && `Column: ${event.colno}`,
-            event.error && `Stack:\n${formatError(event.error)}`
+            event.filename && 'File: ' + event.filename,
+            event.lineno && 'Line: ' + event.lineno,
+            event.colno && 'Column: ' + event.colno,
+            event.error && 'Stack:\n' + formatError(event.error)
         ].filter(Boolean).join('\n');
-        alert(`JavaScript error:\n${details}`);
+        alert('JavaScript error:\n' + details);
     });
-    window.addEventListener('unhandledrejection', function (event) {
-        alert(`Unhandled promise rejection:\n${formatError(event.reason)}`);
-    });
-
+    window.addEventListener('unhandledrejection', function (event) {alert('Unhandled promise rejection:\n' + formatError(event.reason));});
     const ad_sites = [
         'g.doubleclick.net',
         'bing.com/aclick',
@@ -24,18 +26,18 @@ javascript: (function () {
     /* Controller Creator. */
     if (document.getElementById('bm-container')) {document.getElementById('bm-container').remove(); return;}
     const container = document.createElement('div'); container.id = 'bm-container';
-    container.style.cssText = `position: fixed; z-index: 9999;
-        left: 0; top: 0; width: 100%; height: 100%;
-        pointer-events: none;`;
+    container.style.cssText = 'position: fixed; z-index: 9999;\n' +
+        'left: 0; top: 0; width: 100%; height: 100%;\n' +
+        'pointer-events: none;';
     const c = document.createElement('div'); c.id = 'bm-panel';
-    c.style.cssText = `display: flex; flex-direction: column; gap: 5px;
-        position: fixed; z-index: 9999;
-        left: 10px; top: 10px;
-        background-color: #ffffffc0;
-        border: 1px solid #ccc;
-        padding: 5px;
-        pointer-events: auto;`;
-    c.insertAdjacentHTML('beforeend', `<h2>Controls</h2>`);
+    c.style.cssText = 'display: flex; flex-direction: column; gap: 5px;\n' +
+        'position: fixed; z-index: 9999;\n' +
+        'left: 10px; top: 10px;\n' +
+        'background-color: #ffffffc0;\n' +
+        'border: 1px solid #ccc;\n' +
+        'padding: 5px;\n' +
+        'pointer-events: auto;';
+    c.insertAdjacentHTML('beforeend', '<h2>Controls</h2>');
 
     function selectElement(func) {
         const style = document.createElement('style');
@@ -59,7 +61,8 @@ javascript: (function () {
 
     function findElementsBySubstring(element, selector, searchString) {
         const sanitizedString = CSS.escape(searchString);
-        const elements = document.querySelectorAll(`${element}[${selector}*="${sanitizedString}"]`);
+        const selectorString = element + '[' + selector + '*="' + sanitizedString + '"]';
+        const elements = document.querySelectorAll(selectorString);
         /* use output like: matches.forEach(el => console.log(el.id, el));*/
         return Array.from(elements);
     }
@@ -80,7 +83,7 @@ javascript: (function () {
                     'google_ads_iframe',
                     'ad-container','display-ad-container','ad-header'
                 ];
-                let sites_removed = 0;
+                var sites_removed = 0;
                 for (const ad of common_ad_elements) {
                     const adElements = findElementsBySubstring('div','id', ad);
                     adElements.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
@@ -95,7 +98,7 @@ javascript: (function () {
                     adElements2.forEach(el => {el.style.border = '1px solid red'; el.parentElement.remove();});
                     sites_removed += adElements.length + adElements2.length;
                 }
-                alert(`Removed ${sites_removed} ad element parents.`);
+                alert('Removed ' + sites_removed + ' ad element parents.');
             }
         },
         removeElement: {
@@ -120,15 +123,15 @@ javascript: (function () {
             selectElement(function (e) {
                 const el = e.target;
                 setInterval(function () {
-                    el.style.color = `hsl(${(Date.now()/9+180)%360},100%,50%)`;
-                    el.style.backgroundColor = `hsl(${(Date.now()/9)%360},100%,50%)`;
+                    el.style.color = 'hsl(' + ((Date.now() / 9 + 180) % 360) + ',100%,50%)';
+                    el.style.backgroundColor = 'hsl(' + ((Date.now() / 9) % 360) + ',100%,50%)';
                 }, 1000 / 30);
             });
         },
         exit: {
             controlType: "simple", element: "button", textContent: 'x',
             onclick: function () {container.remove();},
-        }
+        },
     };
 
     for (const [key, value] of Object.entries(controls)) {
@@ -158,6 +161,6 @@ javascript: (function () {
     }
     container.appendChild(c);
     if (document.body) {document.body.appendChild(container);} else {
-        document.addEventListener('DOMContentLoaded', function () {document.body.appendChild(container);}, { once: true });
+        document.addEventListener('DOMContentLoaded', function () {document.body.appendChild(container);}, {once: true});
     }
 })();
