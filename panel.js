@@ -113,44 +113,43 @@ javascript: (function () {
         removeAds: {
             controlType: "simple", element: "button", textContent: 'Remove Ads',
             onclick: function () {
-                const common_ad_elements = [
-                    'google_ads_iframe',
-                    'ad-container','display-ad-container','ad-header'
-                ];
-                var sites_removed = 0;
-                for (const ad of common_ad_elements) {
-                    const adElements = findElementsBySubstring('div','id', ad);
-                    const adElements2 = findElementsBySubstring('div','class', ad);
-                    const allAdElements = adElements.concat(adElements2);
-                    allAdElements.forEach(el => {
-                        try {
-                            if (el.parentElement.tagName == 'HTML' || el.parentElement.tagName == 'BODY') {
+                function removeAds() {
+                    const common_ad_elements = [
+                        'google_ads_iframe',
+                        'ad-container','ad-header'
+                    ];
+                    var sites_removed = 0;
+                    for (const ad of common_ad_elements) {
+                        const adElements = findElementsBySubstring('div','id', ad);
+                        const adElements2 = findElementsBySubstring('div','class', ad);
+                        const allAdElements = adElements.concat(adElements2);
+                        allAdElements.forEach(el => {
+                            try {
+                                log('Removed ad element: ' + el.outerHTML);
+                                el.remove();
+                            } catch (e) {}});
+                        sites_removed += allAdElements.length;
+                    }
+                    for (const site of ad_sites) {
+                        const adElements = findElementsBySubstring('','src', site);
+                        const adElements2 = findElementsBySubstring('','href', site);
+                        const allAdElements = adElements.concat(adElements2);
+                        allAdElements.forEach(el => {try {
+                            const filteredTags = ['HTML', 'BODY', 'HEAD', 'TITLE', 'META', 'LINK', 'STYLE'];
+                            if (filteredTags.includes(el.parentElement.tagName)) {
                                 log('Removed ad element: ' + el.outerHTML);
                                 el.remove();
                             } else {
                                 log('Removed ad parent: ' + el.parentElement.outerHTML);
-                                el.parentElement.remove();
+                                el.parentElement.style.border = '2px dashed red';
+                                el.remove();
                             }
                         } catch (e) {}});
-                    sites_removed += allAdElements.length;
+                        sites_removed += allAdElements.length;
+                    }
+                    log('Removed ' + sites_removed + ' ads.');
                 }
-                for (const site of ad_sites) {
-                    const adElements = findElementsBySubstring('','src', site);
-                    const adElements2 = findElementsBySubstring('','href', site);
-                    const allAdElements = adElements.concat(adElements2);
-                    allAdElements.forEach(el => {try {
-                        const filteredTags = ['HTML', 'BODY', 'HEAD', 'TITLE', 'META', 'LINK', 'SCRIPT', 'STYLE'];
-                        if (filteredTags.includes(el.parentElement.tagName)) {
-                            log('Removed ad element: ' + el.outerHTML);
-                            el.remove();
-                        } else {
-                            log('Removed ad parent: ' + el.parentElement.outerHTML);
-                            el.parentElement.remove();
-                        }
-                    } catch (e) {}});
-                    sites_removed += allAdElements.length;
-                }
-                log('Removed ' + sites_removed + ' ads.');
+                setInterval(removeAds, 3000); removeAds();
             }
         },
         removeElement: {
